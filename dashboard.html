@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - HogarInteligente</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK & Configuration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</head>
+<body>
+
+    <!-- Capa de Carga Premium -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner-container">
+            <div class="premium-spinner"></div>
+            <p class="loading-text">Sincronizando con la nube...</p>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        
+        <!-- SIDEBAR MODERNA -->
+        <aside class="app-sidebar glass-effect" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="logo">
+                    <div class="logo-icon">H</div>
+                    <span>Hogar<span>Inteligente</span></span>
+                </div>
+            </div>
+
+            <!-- Menú de Navegación del Dashboard -->
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active" data-target="view-dashboard">
+                    <a href="#dashboard"><i class="fa-solid fa-gauge-high"></i> Panel General</a>
+                </li>
+
+                <li class="sidebar-item" data-target="view-profile">
+                    <a href="profile.html"><i class="fa-solid fa-user-gear"></i> Mi Perfil</a>
+                </li>
+            </ul>
+
+            <!-- Pie de la Sidebar -->
+            <div class="sidebar-footer">
+                <!-- Selector de Tema Claro/Oscuro -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.25rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-muted);">Apariencia</span>
+                    <button id="dashboard-theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+                
+                <!-- Perfil de usuario resumido -->
+                <div class="user-profile-sm">
+                    <div class="avatar" id="sidebar-avatar">U</div>
+                    <div class="user-info-text">
+                        <div class="user-name" id="sidebar-username">Usuario</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+
+                <!-- Cerrar Sesión -->
+                <button id="logout-btn" class="btn-secondary" style="width: 100%; padding: 0.7rem; font-size: 0.85rem; border-color: rgba(239, 68, 68, 0.2); color: var(--color-danger); background: rgba(239, 68, 68, 0.03);">
+                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+        <main class="app-content">
+            
+            <!-- NAVBAR ELEGANTE -->
+            <header class="app-navbar">
+                <div class="navbar-welcome">
+                    <h1 id="navbar-greeting">Hola, ¡Bienvenido!</h1>
+                    <p id="navbar-date">Cargando fecha...</p>
+                </div>
+
+                <div class="navbar-actions">
+                    <!-- Campana de Notificaciones -->
+                    <div class="notification-bell-container">
+                        <button id="notif-bell-btn" class="theme-toggle-btn" aria-label="Ver notificaciones">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notification-badge" id="notif-count" style="display: none;">0</span>
+                        </button>
+                        <!-- Panel de Notificaciones Desplegable -->
+                        <div class="notification-dropdown glass-effect" id="notif-dropdown">
+                            <div class="notif-header">
+                                <span>Notificaciones Recientes</span>
+                                <button id="notif-clear-btn" style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600;">Limpiar</button>
+                            </div>
+                            <div id="notif-items-container">
+                                <!-- Se renderiza dinámicamente -->
+                                <div class="notif-empty">No tienes notificaciones pendientes.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ==================== VISTA 1: PANEL GENERAL ==================== -->
+            <section id="view-dashboard" class="dashboard-view-pane active">
+                
+                <!-- Tarjetas de Estadísticas Principales -->
+                <div class="stats-grid">
+                    <div class="stat-card glass-effect">
+                        <div>
+                            <span class="stat-label">Total Productos</span>
+                            <div class="stat-value" id="stat-total-products">0</div>
+                        </div>
+                        <div class="stat-icon icon-primary">
+                            <i class="fa-solid fa-cubes"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div>
+                            <span class="stat-label">Por Agotarse</span>
+                            <div class="stat-value" id="stat-low-stock" style="color: var(--color-warning);">0</div>
+                        </div>
+                        <div class="stat-icon icon-warning">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div>
+                            <span class="stat-label">Productos Vencidos</span>
+                            <div class="stat-value" id="stat-expired" style="color: var(--color-danger);">0</div>
+                        </div>
+                        <div class="stat-icon icon-danger">
+                            <i class="fa-solid fa-calendar-times"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-effect">
+                        <div>
+                            <span class="stat-label">Consumo Inteligente</span>
+                            <div class="stat-value" id="stat-efficiency" style="color: var(--color-success);">100%</div>
+                        </div>
+                        <div class="stat-icon icon-success">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficas e Inteligencia -->
+                <div class="dashboard-middle-grid">
+                    
+                    <!-- Gráfico 1: Categorías -->
+                    <div class="panel-card glass-effect">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-chart-pie"></i> Distribución por Categoría</h3>
+                        </div>
+                        <div class="chart-container">
+                            <!-- SVG renderizado dinámicamente -->
+                            <svg id="categories-chart" width="220" height="220" viewBox="0 0 220 220" style="transform: rotate(-90deg);"></svg>
+                            <div id="chart-legend" style="position: absolute; right: 10px; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Asistente Inteligente (Patrones) -->
+                    <div class="panel-card glass-effect">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-brain"></i> Asistente de Consumo</h3>
+                            <span class="badge badge-info" id="asistente-alerts-count">0 alertas</span>
+                        </div>
+                        <div class="recommendations-list" id="dashboard-insights-list">
+                            <!-- Renderizado dinámicamente -->
+                            <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+                                <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: var(--color-success); margin-bottom: 1rem; display:block;"></i>
+                                Todo en orden. Aún estamos estudiando tus patrones de consumo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Productos Vencidos o Próximos a Vencer -->
+                <div class="panel-card glass-effect" style="margin-bottom: 2rem;">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fa-solid fa-hourglass-half"></i> Alertas Críticas de Vencimiento</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;" id="critical-expiry-table">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--color-border); color: var(--color-text-muted);">
+                                    <th style="padding: 0.75rem 1rem;">Producto</th>
+                                    <th style="padding: 0.75rem 1rem;">Categoría</th>
+                                    <th style="padding: 0.75rem 1rem;">Vence</th>
+                                    <th style="padding: 0.75rem 1rem;">Estado</th>
+                                    <th style="padding: 0.75rem 1rem;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="critical-expiry-tbody">
+                                <tr>
+                                    <td colspan="5" style="padding: 2rem; text-align: center; color: var(--color-text-muted);">No hay alertas de vencimiento críticas para mostrar.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== VISTA 2: INVENTARIO ==================== -->
+            <section id="view-inventory" class="dashboard-view-pane">
+                <div class="inventory-section glass-effect">
+                    
+                    <!-- Barra de Herramientas de Búsqueda y Filtros -->
+                    <div class="inventory-toolbar">
+                        <div class="search-box-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="inventory-search" class="search-input" placeholder="Buscar por nombre o marca...">
+                        </div>
+                        
+                        <div class="toolbar-filters">
+                            <select id="filter-status" class="filter-select">
+                                <option value="all">Todos los Estados</option>
+                                <option value="ok">Stock Saludable</option>
+                                <option value="low">Poco Inventario</option>
+                                <option value="expired">Vencidos</option>
+                                <option value="expiring">Vence Pronto (&lt; 7 días)</option>
+                            </select>
+                            
+                            <button id="add-product-btn" class="btn-primary">
+                                <i class="fa-solid fa-plus"></i> Agregar Producto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Rápidos por Categoría -->
+                    <div class="categories-tabs" id="category-tabs">
+                        <button class="tab-btn active" data-category="all">Todos</button>
+                        <button class="tab-btn" data-category="Mercado"><i class="fa-solid fa-cart-shopping"></i> Mercado</button>
+                        <button class="tab-btn" data-category="Productos de aseo"><i class="fa-solid fa-soap"></i> Aseo</button>
+                        <button class="tab-btn" data-category="Limpieza"><i class="fa-solid fa-broom"></i> Limpieza</button>
+                        <button class="tab-btn" data-category="Maquillaje"><i class="fa-solid fa-sparkles"></i> Maquillaje</button>
+                        <button class="tab-btn" data-category="Medicamentos"><i class="fa-solid fa-pills"></i> Medicamentos</button>
+                        <button class="tab-btn" data-category="Productos personales"><i class="fa-solid fa-hands-holding-child"></i> Personal</button>
+                    </div>
+
+                    <!-- Rejilla de Productos -->
+                    <div class="products-grid" id="products-grid">
+                        <!-- Renderizado dinámicamente -->
+                        <div class="inventory-empty">
+                            <i class="fa-solid fa-box-open"></i>
+                            <h3>No hay productos registrados</h3>
+                            <p>Comienza agregando productos a tu hogar presionando el botón "Agregar Producto".</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ==================== VISTA 3: ANÁLISIS INTELIGENTE ==================== -->
+            <section id="view-intelligence" class="dashboard-view-pane">
+                <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+                    
+                    <!-- Tarjeta de Patrones Inteligentes -->
+                    <div class="panel-card glass-effect" style="height: fit-content;">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-brain"></i> Motor de Consumo de Inteligencia Artificial</h3>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1.5rem; line-height: 1.5;">
+                            Analizamos el historial de consumo de tu hogar a través de los eventos de reducción de inventario. Esto nos permite predecir los hábitos de consumo promedio de tu familia y sugerirte el momento de reabastecimiento ideal.
+                        </p>
+                        
+                        <div class="recommendations-list" id="deep-intelligence-list" style="max-height: 500px;">
+                            <!-- Renderizado dinámicamente con detalles avanzados -->
+                            <div style="text-align: center; padding: 3rem; color: var(--color-text-muted);">
+                                <i class="fa-solid fa-chart-line" style="font-size: 3rem; color: var(--color-primary); margin-bottom: 1.5rem; display:block;"></i>
+                                <strong style="color:var(--color-text-main);">Recolectando información histórica...</strong>
+                                <p style="font-size:0.8rem; margin-top:0.5rem; max-width:320px; margin-inline:auto;">
+                                    Disminuye la cantidad de tus productos a medida que los consumas. Cuando realices cambios constantes, aparecerán predicciones de duración exacta aquí.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sugerencias de Lista de Compras -->
+                    <div class="panel-card glass-effect" style="height: fit-content;">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="fa-solid fa-clipboard-check"></i> Sugerencia de Compras</h3>
+                            <button id="btn-copy-shopping-list" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;"><i class="fa-solid fa-copy"></i> Copiar</button>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:1rem;">Productos agotados, próximamente a vencer o con cantidades críticas.</p>
+                        
+                        <ul id="shopping-list-ul" style="list-style:none; display:flex; flex-direction:column; gap:0.75rem;">
+                            <!-- Dinámico -->
+                            <li style="text-align:center; padding: 2rem; color:var(--color-text-muted); font-size:0.875rem;">¡Tu despensa está completamente al día!</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+
+
+        </main>
+    </div>
+
+    <!-- ==================== MODAL DE AGREGAR / EDITAR PRODUCTO ==================== -->
+    <div class="modal-backdrop" id="product-modal">
+        <div class="modal-container glass-effect">
+            
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Agregar Nuevo Producto</h3>
+                <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+            </div>
+            
+            <form id="product-form" novalidate>
+                <input type="hidden" id="prod-id">
+                
+                <div class="modal-body">
+                    <!-- Nombre y Marca -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="prod-name">Nombre del Producto *</label>
+                            <input type="text" id="prod-name" class="form-control" placeholder="Ej. Arroz Diana" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prod-brand">Marca *</label>
+                            <input type="text" id="prod-brand" class="form-control" placeholder="Ej. Diana" required>
+                        </div>
+                    </div>
+
+                    <!-- Categoría y Cantidad -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="prod-category">Categoría *</label>
+                            <select id="prod-category" class="form-control" required>
+                                <option value="" disabled selected>Selecciona una categoría</option>
+                                <option value="Mercado">Mercado</option>
+                                <option value="Productos de aseo">Productos de aseo</option>
+                                <option value="Limpieza">Limpieza</option>
+                                <option value="Maquillaje">Maquillaje</option>
+                                <option value="Medicamentos">Medicamentos</option>
+                                <option value="Productos personales">Productos personales</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prod-qty">Cantidad Inicial *</label>
+                            <input type="number" id="prod-qty" class="form-control" min="0" placeholder="Ej. 5" required>
+                        </div>
+                    </div>
+
+                    <!-- Fechas de Compra y Vencimiento -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="prod-purchase-date">Fecha de Compra *</label>
+                            <input type="date" id="prod-purchase-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prod-expiry-date">Fecha de Vencimiento *</label>
+                            <input type="date" id="prod-expiry-date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Umbral Crítico e Imagen Opcional -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="prod-min-qty">Stock Mínimo (Alerta) *</label>
+                            <input type="number" id="prod-min-qty" class="form-control" value="2" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="prod-image-url">URL de Imagen (Opcional)</label>
+                            <input type="url" id="prod-image-url" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="modal-submit-btn">Guardar Producto <i class="fa-solid fa-save"></i></button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    <!-- BOTÓN DE SIDEBAR PARA MÓVILES -->
+    <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" aria-label="Abrir menú">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Contenedor para notificaciones Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Supabase SDK & Configuration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+    <!-- Cargar Script de Lógica principal -->
+    <script src="script.js"></script>
+</body>
+</html>

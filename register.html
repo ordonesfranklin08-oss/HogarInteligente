@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear Cuenta - HogarInteligente</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Configuración Supabase -->
+    <script src="supabase.js"></script>
+
+</head>
+
+<body>
+
+    <div class="auth-wrapper">
+
+        <div class="auth-card glass-effect">
+
+            <div class="auth-header">
+
+                <a href="index.html" class="logo">
+
+                    <div class="logo-icon">H</div>
+
+                    <span>
+                        Hogar<span>Inteligente</span>
+                    </span>
+
+                </a>
+
+                <h2 class="auth-title">
+                    Crea tu cuenta
+                </h2>
+
+                <p class="auth-subtitle">
+                    Comienza a organizar tu hogar de forma inteligente.
+                </p>
+
+            </div>
+
+            <!-- FORMULARIO -->
+            <form id="register-form">
+
+                <!-- Nombre -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        <i class="fa-solid fa-user"></i>
+                        Nombre Completo
+                    </label>
+
+                    <input type="text"
+                        id="reg-name"
+                        class="form-control"
+                        placeholder="Ej. Juan Pérez"
+                        required>
+
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        <i class="fa-solid fa-envelope"></i>
+                        Correo Electrónico
+                    </label>
+
+                    <input type="email"
+                        id="reg-email"
+                        class="form-control"
+                        placeholder="correo@gmail.com"
+                        required>
+
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        <i class="fa-solid fa-lock"></i>
+                        Contraseña
+                    </label>
+
+                    <input type="password"
+                        id="reg-password"
+                        class="form-control"
+                        placeholder="Mínimo 6 caracteres"
+                        required>
+
+                </div>
+
+                <!-- Confirmar Password -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Confirmar Contraseña
+                    </label>
+
+                    <input type="password"
+                        id="reg-confirm-password"
+                        class="form-control"
+                        placeholder="Repite tu contraseña"
+                        required>
+
+                </div>
+
+                <!-- BOTON -->
+                <button type="submit"
+                    class="btn-primary"
+                    style="width:100%; margin-top:20px;">
+
+                    Crear Cuenta
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+
+                ¿Ya tienes cuenta?
+
+                <a href="login.html">
+                    Inicia sesión
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container"
+        id="toast-container"></div>
+
+    <!-- SCRIPT PRINCIPAL -->
+    <script>
+
+        // Tema
+        const savedTheme =
+        localStorage.getItem('hogar_theme') || 'light';
+
+        document.documentElement.setAttribute(
+            'data-theme',
+            savedTheme
+        );
+
+        // Verificar sesión
+        async function checkActiveSession() {
+
+            if (!window.supabaseClient) return;
+
+            try {
+
+                const {
+                    data: { session }
+                } =
+                await window.supabaseClient.auth.getSession();
+
+                if (session && session.user) {
+
+                    window.location.href =
+                    "dashboard.html";
+
+                }
+
+            } catch (error) {
+
+                console.log(error);
+
+            }
+
+        }
+
+        checkActiveSession();
+
+        // REGISTRO
+        document
+        .getElementById("register-form")
+        .addEventListener("submit", async function (e) {
+
+            e.preventDefault();
+
+            const nombre =
+            document.getElementById("reg-name").value.trim();
+
+            const email =
+            document.getElementById("reg-email").value.trim();
+
+            const password =
+            document.getElementById("reg-password").value;
+
+            const confirmPassword =
+            document.getElementById("reg-confirm-password").value;
+
+            // Validaciones
+            if (nombre.length < 3) {
+                showToast("El nombre debe tener al menos 3 caracteres", "danger");
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast("La contraseña debe tener mínimo 6 caracteres", "danger");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast("Las contraseñas no coinciden", "danger");
+                return;
+            }
+
+            try {
+                // Registrar usuario con metadatos
+                const { data, error } =
+                await window.supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: nombre
+                        }
+                    }
+                });
+
+                if (error) {
+                    console.log(error);
+                    showToast(error.message, "danger");
+                    return;
+                }
+
+                showToast("¡Cuenta creada correctamente! Redirigiendo...", "success");
+
+                // Redirigir
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1500);
+
+            } catch (error) {
+                console.log(error);
+                showToast("Error al registrar usuario", "danger");
+            }
+
+        });
+
+        // Helper para mostrar Toasts (ya que el contenedor existe en la página)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) {
+                alert(message);
+                return;
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = 'fa-circle-check';
+            if (type === 'danger') icon = 'fa-circle-xmark';
+            if (type === 'warning') icon = 'fa-triangle-exclamation';
+            if (type === 'info') icon = 'fa-circle-info';
+
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <div style="font-size:0.875rem; font-weight:600;">${message}</div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastIn var(--transition-normal) reverse forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3500);
+        }
+
+    </script>
+
+</body>
+
+</html>

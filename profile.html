@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - HogarInteligente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner-container">
+            <div class="premium-spinner"></div>
+            <p class="loading-text">Cargando perfil...</p>
+        </div>
+    </div>
+
+    <header style="border-bottom: 1px solid var(--color-border); background: var(--bg-card); position: sticky; top: 0; z-index: 50;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <a href="dashboard.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--color-text-main);">
+                <div class="logo-icon" style="width: 36px; height: 36px; font-size: 0.9rem;">H</div>
+                <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.2rem;">Hogar<span style="background: linear-gradient(135deg, var(--color-primary), #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Inteligente</span></span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="dashboard.html" class="btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Panel
+                </a>
+                <button id="logout-btn" class="btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; border-color: rgba(239, 68, 68, 0.2); color: var(--color-danger); background: rgba(239, 68, 68, 0.03);">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem;">
+
+        <!-- Tarjeta de Perfil -->
+        <div class="glass-effect" style="border-radius: var(--border-radius-lg); padding: 2.5rem; box-shadow: var(--shadow-premium); border: 1px solid var(--color-border); margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                <div id="profile-avatar" style="width: 100px; height: 100px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, var(--color-primary), #a855f7); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2.75rem; box-shadow: var(--shadow-lg); flex-shrink: 0;">
+                    U
+                </div>
+                <div style="flex-grow: 1;">
+                    <h1 id="profile-name" style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem;">Usuario</h1>
+                    <p id="profile-email" style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 0.75rem;">correo@ejemplo.com</p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Miembro Activo</span>
+                        <span class="badge badge-info" id="profile-member-since"><i class="fa-solid fa-calendar"></i> Miembro desde Hoy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Estadísticas Personales -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <div class="stat-card glass-effect">
+                <div>
+                    <span class="stat-label">Total Productos</span>
+                    <div class="stat-value" id="stat-total-products" style="color: var(--color-primary);">0</div>
+                </div>
+                <div class="stat-icon icon-primary"><i class="fa-solid fa-cubes"></i></div>
+            </div>
+            <div class="stat-card glass-effect">
+                <div>
+                    <span class="stat-label">Acciones Realizadas</span>
+                    <div class="stat-value" id="stat-total-actions" style="color: var(--color-info);">0</div>
+                </div>
+                <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: var(--color-info);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            </div>
+            <div class="stat-card glass-effect">
+                <div>
+                    <span class="stat-label">Productos Agotados</span>
+                    <div class="stat-value" id="stat-finished" style="color: var(--color-danger);">0</div>
+                </div>
+                <div class="stat-icon icon-danger"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+            <div class="stat-card glass-effect">
+                <div>
+                    <span class="stat-label">Categorías</span>
+                    <div class="stat-value" id="stat-categories" style="color: var(--color-warning);">0</div>
+                </div>
+                <div class="stat-icon icon-warning"><i class="fa-solid fa-tags"></i></div>
+            </div>
+        </div>
+
+        <!-- Sugerencia de Compras -->
+        <div class="glass-effect" style="border-radius: var(--border-radius-lg); padding: 2rem; box-shadow: var(--shadow-premium); border: 1px solid var(--color-border); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="fa-solid fa-clipboard-check" style="color: var(--color-primary);"></i> Sugerencia de Compras
+                </h3>
+                <button id="btn-copy-shopping-list" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;"><i class="fa-solid fa-copy"></i> Copiar</button>
+            </div>
+            <p style="font-size:0.85rem; color:var(--color-text-muted); margin-bottom:1rem;">Productos agotados, próximos a vencer o con cantidades críticas.</p>
+            <ul id="shopping-list-ul" style="list-style:none; display:flex; flex-direction:column; gap:0.75rem;">
+                <li style="text-align:center; padding: 2rem; color:var(--color-text-muted); font-size:0.875rem;">Calculando sugerencias...</li>
+            </ul>
+        </div>
+
+        <!-- Historial de Actividad -->
+        <div class="glass-effect" style="border-radius: var(--border-radius-lg); padding: 2rem; box-shadow: var(--shadow-premium); border: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color: var(--color-primary);"></i> Historial de Actividad de Consumo
+                </h3>
+                <span id="activity-count-badge" class="badge badge-info">0 registros</span>
+            </div>
+            <div id="activity-log-container" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <div style="text-align: center; padding: 3rem 2rem; color: var(--color-text-muted);">
+                    <i class="fa-solid fa-inbox" style="font-size: 3rem; color: var(--color-border); margin-bottom: 1rem; display: block;"></i>
+                    <p style="font-size: 0.95rem;">No se registran actividades de consumo todavía.</p>
+                    <p style="font-size: 0.8rem; margin-top: 0.5rem;">Comienza a gestionar tu inventario desde el panel principal.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--color-text-muted); font-size: 0.85rem; border-top: 1px solid var(--color-border); margin-top: 2rem;">
+        <p>&copy; 2026 HogarInteligente. Perfil de usuario.</p>
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // Tema
+        const savedTheme = localStorage.getItem('hogar_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = themeToggleBtn.querySelector('i');
+        if (savedTheme === 'dark') themeIcon.className = 'fa-solid fa-sun';
+        themeToggleBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('hogar_theme', next);
+            themeIcon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            showToast(`Modo ${next === 'dark' ? 'oscuro' : 'claro'} activado.`, 'info');
+        });
+
+        // Verificar sesion
+        async function checkSession() {
+            let userEmail = '';
+            let userName = '';
+            let userId = '';
+
+            if (window.isSupabaseConfigured) {
+                try {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (!session || !session.user) {
+                        window.location.href = 'login.html';
+                        return null;
+                    }
+                    userEmail = session.user.email;
+                    userName = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+                    userId = session.user.id;
+                } catch (e) {
+                    window.location.href = 'login.html';
+                    return null;
+                }
+            } else {
+                const session = JSON.parse(localStorage.getItem('hogar_sesion'));
+                if (!session || !session.currentUser) {
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                userEmail = session.currentUser;
+                userName = session.name;
+                userId = null;
+            }
+
+            return { userEmail, userName, userId };
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            let icon = 'fa-circle-check';
+            if (type === 'danger') icon = 'fa-circle-xmark';
+            if (type === 'warning') icon = 'fa-triangle-exclamation';
+            if (type === 'info') icon = 'fa-circle-info';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i><div style="font-size:0.875rem; font-weight:600;">${message}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'toastIn var(--transition-normal) reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Cargar perfil
+        async function loadProfile() {
+            showLoadingOverlay(true, 'Cargando perfil...');
+            const session = await checkSession();
+            if (!session) return;
+
+            const { userEmail, userName, userId } = session;
+
+            // Actualizar header del perfil
+            document.getElementById('profile-name').textContent = userName;
+            document.getElementById('profile-email').textContent = userEmail;
+
+            const avatarLetter = userName.charAt(0).toUpperCase();
+            const avatarEl = document.getElementById('profile-avatar');
+            avatarEl.textContent = avatarLetter;
+
+            // Fecha de creacion del perfil (de localStorage o actual)
+            const profileMeta = JSON.parse(localStorage.getItem('hogar_profile_meta') || '{}');
+            if (!profileMeta.createdAt) {
+                profileMeta.createdAt = new Date().toISOString();
+                localStorage.setItem('hogar_profile_meta', JSON.stringify(profileMeta));
+            }
+            const createdDate = new Date(profileMeta.createdAt);
+            document.getElementById('profile-member-since').innerHTML = `<i class="fa-solid fa-calendar"></i> Miembro desde ${createdDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+
+            // Cargar datos del usuario
+            let products = [];
+            let logs = [];
+
+            if (window.isSupabaseConfigured && userId) {
+                try {
+                    const { data: dbProducts } = await window.supabaseClient.from('productos').select('*').eq('user_id', userId);
+                    if (dbProducts) products = dbProducts.map(p => ({
+                        id: p.id, name: p.name, brand: p.brand, qty: p.qty,
+                        minQty: p.min_qty !== undefined ? p.min_qty : p.minQty,
+                        category: p.category,
+                        purchaseDate: p.purchase_date || p.purchaseDate,
+                        expiryDate: p.expiry_date || p.expiryDate,
+                        imageUrl: p.image_url || p.imageUrl,
+                        history: Array.isArray(p.history) ? p.history : (typeof p.history === 'string' ? JSON.parse(p.history) : [])
+                    }));
+                    const { data: dbLogs } = await window.supabaseClient.from('logs_actividad').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+                    if (dbLogs) logs = dbLogs.map(l => ({
+                        id: l.id,
+                        productName: l.product_name || l.productName,
+                        qtyChange: l.qty_change || l.qtyChange,
+                        date: l.date || l.created_at,
+                        actionType: l.action_type || l.actionType
+                    }));
+                } catch (e) { console.warn(e); }
+            }
+
+            // Fallback a localStorage
+            if (products.length === 0) {
+                const key = `hogar_productos_${userEmail}`;
+                products = JSON.parse(localStorage.getItem(key) || '[]');
+            }
+            if (logs.length === 0) {
+                const key = `hogar_logs_${userEmail}`;
+                logs = JSON.parse(localStorage.getItem(key) || '[]');
+            }
+
+            // Stats
+            document.getElementById('stat-total-products').textContent = products.length;
+            document.getElementById('stat-total-actions').textContent = logs.length;
+            document.getElementById('stat-finished').textContent = logs.filter(l => l.actionType === 'finished' || l.actionType === 'delete').length;
+            const uniqueCats = new Set(products.map(p => p.category));
+            document.getElementById('stat-categories').textContent = uniqueCats.size;
+
+            document.getElementById('activity-count-badge').textContent = `${logs.length} registros`;
+
+            // Generar lista de compras organizada
+            const today = new Date();
+            const agotados = [];
+            const porAgotarse = [];
+
+            products.forEach(prod => {
+                const expiry = new Date(prod.expiryDate);
+                const daysToExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                const reasons = [];
+
+                if (prod.qty === 0) reasons.push('Agotado');
+                if (daysToExpiry < 0) reasons.push('Vencido');
+                if (daysToExpiry >= 0 && daysToExpiry <= 7) reasons.push('Por vencer');
+                if (prod.qty > 0 && prod.qty <= prod.minQty) reasons.push('Bajo stock');
+
+                if (reasons.length > 0) {
+                    const entry = { name: prod.name, reasons, sortDate: prod.expiryDate };
+                    if (prod.qty === 0) {
+                        agotados.push(entry);
+                    } else {
+                        porAgotarse.push(entry);
+                    }
+                }
+            });
+
+            porAgotarse.sort((a, b) => new Date(a.sortDate) - new Date(b.sortDate));
+
+            const shoppingListUl = document.getElementById('shopping-list-ul');
+            if (agotados.length === 0 && porAgotarse.length === 0) {
+                shoppingListUl.innerHTML = `
+                    <li style="text-align:center; padding: 2rem; color:var(--color-text-muted); font-size:0.875rem;">
+                        <i class="fa-solid fa-square-check" style="font-size: 2rem; color: var(--color-success); margin-bottom: 0.5rem; display:block;"></i>
+                        Tu despensa esta completamente al dia
+                    </li>`;
+            } else {
+                let html = '';
+                if (agotados.length > 0) {
+                    html += `<li style="font-size:0.8rem; font-weight:700; color:var(--color-danger); padding:0.25rem 0;"><i class="fa-solid fa-circle-exclamation"></i> AGOTADOS (${agotados.length})</li>`;
+                    html += agotados.map(item => `
+                        <li style="display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0.8rem; background:var(--bg-input); border-radius:8px; border-left: 3px solid var(--color-danger); font-size:0.825rem;">
+                            <span style="font-weight:700;"><i class="fa-solid fa-square"></i> ${item.name}</span>
+                            <span class="badge badge-danger" style="font-size:0.65rem;">${item.reasons.join(', ')}</span>
+                        </li>`).join('');
+                }
+                if (porAgotarse.length > 0) {
+                    html += `<li style="font-size:0.8rem; font-weight:700; color:var(--color-warning); padding:0.25rem 0; margin-top:0.5rem;"><i class="fa-solid fa-clock"></i> POR AGOTARSE (${porAgotarse.length})</li>`;
+                    html += porAgotarse.map(item => `
+                        <li style="display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0.8rem; background:var(--bg-input); border-radius:8px; border-left: 3px solid var(--color-warning); font-size:0.825rem;">
+                            <span style="font-weight:700;"><i class="fa-solid fa-square"></i> ${item.name}</span>
+                            <span class="badge badge-warning" style="font-size:0.65rem;">${item.reasons.join(', ')}</span>
+                        </li>`).join('');
+                }
+                shoppingListUl.innerHTML = html;
+            }
+            document.getElementById('btn-copy-shopping-list').onclick = () => {
+                const lines = [];
+                if (agotados.length) { lines.push('--- AGOTADOS ---'); agotados.forEach(i => lines.push(`- ${i.name}`)); }
+                if (porAgotarse.length) { lines.push('--- POR AGOTARSE ---'); porAgotarse.forEach(i => lines.push(`- ${i.name}`)); }
+                navigator.clipboard.writeText(lines.join('\n'));
+                showToast('Lista de compras copiada al portapapeles.', 'success');
+            };
+
+            // Renderizar actividad
+            const container = document.getElementById('activity-log-container');
+            if (logs.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--color-text-muted);">
+                        <i class="fa-solid fa-inbox" style="font-size: 3rem; color: var(--color-border); margin-bottom: 1rem; display: block;"></i>
+                        <p style="font-size: 0.95rem;">No se registran actividades de consumo todavía.</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Comienza a gestionar tu inventario desde el panel principal.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = logs.map(log => {
+                    let actionMsg = '';
+                    let dotColor = 'var(--color-primary)';
+                    const dateStr = new Date(log.date).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                    if (log.actionType === 'create') {
+                        actionMsg = `Agregaste un nuevo producto: <strong>${log.productName}</strong> con <strong>${log.qtyChange} u.</strong>`;
+                        dotColor = 'var(--color-success)';
+                    } else if (log.actionType === 'increase') {
+                        actionMsg = `Aumentaste stock de <strong>${log.productName}</strong> en <strong>+${log.qtyChange} u.</strong>`;
+                        dotColor = 'var(--color-info)';
+                    } else if (log.actionType === 'decrease') {
+                        actionMsg = `Consumiste <strong>${Math.abs(log.qtyChange)} u.</strong> de <strong>${log.productName}</strong>`;
+                        dotColor = 'var(--color-warning)';
+                    } else if (log.actionType === 'finished') {
+                        actionMsg = `Marcaste <strong>${log.productName}</strong> como terminado.`;
+                        dotColor = 'var(--color-danger)';
+                    } else if (log.actionType === 'delete') {
+                        actionMsg = `Eliminaste el producto <strong>${log.productName}</strong> de tu inventario.`;
+                        dotColor = 'var(--color-danger)';
+                    } else {
+                        actionMsg = `Actualizaste informacion de <strong>${log.productName}</strong>`;
+                        dotColor = 'var(--color-text-muted)';
+                    }
+
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1.1rem; border-radius: var(--border-radius-md); background: var(--bg-input); border: 1px solid var(--color-border); font-size: 0.875rem; transition: all var(--transition-fast);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${dotColor}; flex-shrink: 0;"></span>
+                                <span>${actionMsg}</span>
+                            </div>
+                            <span style="color: var(--color-text-muted); font-size: 0.75rem; white-space: nowrap; margin-left: 1rem;">${dateStr}</span>
+                        </div>`;
+                }).join('');
+            }
+
+            showLoadingOverlay(false);
+        }
+
+        function showLoadingOverlay(show, text) {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            if (show) {
+                overlay.classList.add('active');
+                const textEl = overlay.querySelector('.loading-text');
+                if (textEl && text) textEl.textContent = text;
+            } else {
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if (window.isSupabaseConfigured) {
+                try { await window.supabaseClient.auth.signOut(); } catch (e) { console.error(e); }
+            }
+            localStorage.removeItem('hogar_sesion');
+            showToast('Sesion cerrada. Redirigiendo...', 'info');
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        });
+
+        loadProfile();
+    </script>
+
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-overlay.active { display: flex; }
+        .spinner-container {
+            text-align: center;
+            background: var(--bg-card);
+            padding: 2.5rem 3rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-premium);
+        }
+        .premium-spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            header > div { flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+            header > div > a:first-child { flex: 1; min-width: 0; }
+            #profile-avatar { width: 80px; height: 80px; font-size: 2.25rem; }
+        }
+    </style>
+
+</body>
+</html>

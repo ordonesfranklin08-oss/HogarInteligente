@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarInteligente - Inventario Inteligente para tu Hogar</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK & Configuration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</head>
+
+<body>
+
+    <!-- Header / Navbar de la Landing -->
+    <header class="landing-container">
+        <nav class="landing-nav">
+            <div class="logo">
+                <div class="logo-icon">H</div>
+                <span>Hogar<span>Inteligente</span></span>
+            </div>
+            <div class="nav-actions">
+                <!-- Toggle de Tema Claro/Oscuro -->
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="login.html" class="btn-secondary" id="nav-login-btn"><i
+                        class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</a>
+                <a href="register.html" class="btn-primary" id="nav-register-btn">Registrarse <i
+                        class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Sección Hero Principal -->
+    <main class="landing-container hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Tu hogar bajo control con <span>Inteligencia</span></h1>
+            <p class="hero-subtitle">
+                Administra tus productos de mercado, limpieza, aseo personal, medicamentos y maquillaje de forma
+                inteligente. Recibe predicciones de consumo, alertas de vencimiento y mantén tu hogar siempre
+                abastecido.
+            </p>
+            <div class="hero-cta">
+                <a href="login.html" class="btn-primary btn-hero-start">Comenzar Gratis <i
+                        class="fa-solid fa-rocket"></i></a>
+                <a href="login.html" class="btn-secondary">Ver Demostración</a>
+            </div>
+        </div>
+
+        <!-- Elemento Visual / Mockup Interactivo -->
+        <div class="hero-visual">
+            <div class="mockup-card glass-effect">
+                <div class="mockup-header">
+                    <span class="badge badge-warning"><i class="fa-solid fa-triangle-exclamation"></i> Alerta de
+                        Consumo</span>
+                    <span class="mockup-dot"></span>
+                </div>
+
+                <div class="mockup-item">
+                    <div>
+                        <strong style="display:block; font-size:1rem;">Shampoo Pantene</strong>
+                        <span style="font-size:0.75rem; opacity:0.7;"><i class="fa-solid fa-tag"></i> Productos
+                            personales</span>
+                    </div>
+                    <span class="badge badge-danger">1 Unidad</span>
+                </div>
+
+                <p style="font-size: 0.85rem; margin: 1rem 0; line-height: 1.4;">
+                    <i class="fa-solid fa-brain" style="color:var(--color-primary);"></i> <strong>Asistente IA:</strong>
+                    "Compras shampoo cada 45 días. Basado en tu consumo, tu unidad actual se agotará en <strong>3
+                        días</strong>."
+                </p>
+
+                <div class="mockup-stats">
+                    <div class="mockup-stat-box">
+                        <div class="mockup-stat-val">32</div>
+                        <div style="font-size:0.7rem; opacity:0.7;">Disponibles</div>
+                    </div>
+                    <div class="mockup-stat-box">
+                        <div class="mockup-stat-val" style="color:var(--color-danger);">2</div>
+                        <div style="font-size:0.7rem; opacity:0.7;">Vencidos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Características Clave -->
+    <section class="landing-container features-section">
+        <h2 class="features-title">¿Qué hace a HogarInteligente único?</h2>
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card glass-effect">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <h3>Inventario Categorizado</h3>
+                <p style="color:var(--color-text-muted); margin-top:0.75rem; font-size:0.9rem; line-height:1.5;">
+                    Organiza tus productos en 6 categorías esenciales: Mercado, Aseo, Limpieza, Maquillaje, Medicamentos
+                    y Cuidado Personal.
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card glass-effect">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <h3>Predicción de Consumo</h3>
+                <p style="color:var(--color-text-muted); margin-top:0.75rem; font-size:0.9rem; line-height:1.5;">
+                    Nuestro motor inteligente aprende de tus hábitos diarios y calcula cuándo se terminarán tus
+                    productos automáticamente.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card glass-effect">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+                <h3>Alertas Inteligentes</h3>
+                <p style="color:var(--color-text-muted); margin-top:0.75rem; font-size:0.9rem; line-height:1.5;">
+                    Recibe notificaciones inmediatas de productos próximos a vencer o cuando el stock sea crítico. ¡No
+                    más desperdicio!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-container landing-footer">
+        <p>&copy; 2026 HogarInteligente. Diseñado para un hogar moderno y organizado.</p>
+    </footer>
+
+    <!-- Lógica de Landing (Redirección inteligente y Modo Oscuro) -->
+    <script>
+        // Cambiar tema visual
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = themeToggleBtn.querySelector('i');
+
+        // Cargar tema guardado
+        const savedTheme = localStorage.getItem('hogar_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('hogar_theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fa-solid fa-sun';
+            } else {
+                themeIcon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Redirección inteligente: Si ya inició sesión (Supabase o Local), cambiar botones para ir al Dashboard directamente
+        async function checkActiveSession() {
+            let hasSession = false;
+
+            if (window.isSupabaseConfigured) {
+                try {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session && session.user) {
+                        hasSession = true;
+                    }
+                } catch (e) {
+                    console.error("Error al validar sesión en Supabase:", e);
+                }
+            } else {
+                const session = JSON.parse(localStorage.getItem('hogar_sesion'));
+                if (session && session.currentUser) {
+                    hasSession = true;
+                }
+            }
+
+            if (hasSession) {
+                const navLoginBtn = document.getElementById('nav-login-btn');
+                const navRegisterBtn = document.getElementById('nav-register-btn');
+                const heroStartBtn = document.querySelector('.btn-hero-start');
+
+                if (navLoginBtn) {
+                    navLoginBtn.innerHTML = '<i class="fa-solid fa-gauge-high"></i> Panel Control';
+                    navLoginBtn.href = 'dashboard.html';
+                    navLoginBtn.className = 'btn-primary';
+                }
+                if (navRegisterBtn) {
+                    navRegisterBtn.style.display = 'none';
+                }
+                if (heroStartBtn) {
+                    heroStartBtn.innerHTML = 'Ir a mi Panel <i class="fa-solid fa-arrow-right"></i>';
+                    heroStartBtn.href = 'dashboard.html';
+                }
+            }
+        }
+        checkActiveSession();
+    </script>
+</body>
+
+</html>

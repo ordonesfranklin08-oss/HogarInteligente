@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - HogarInteligente</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK & Configuration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <!-- Tarjeta de Login Premium -->
+        <div class="auth-card glass-effect">
+            <div class="auth-header">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon">H</div>
+                    <span>Hogar<span>Inteligente</span></span>
+                </a>
+                <h2 class="auth-title">¡Bienvenido de nuevo!</h2>
+                <p class="auth-subtitle">Ingresa tus credenciales para administrar tu inventario.</p>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="login-form" novalidate>
+                <!-- Correo Electrónico -->
+                <div class="form-group">
+                    <label class="form-label" for="login-email"><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="nombre@correo.com" required>
+                    <span class="input-feedback" id="feedback-login-email">Ingresa un correo electrónico válido.</span>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label class="form-label" for="login-password"><i class="fa-solid fa-lock"></i> Contraseña</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Ingresa tu contraseña" required>
+                    <span class="input-feedback" id="feedback-login-password">Ingresa tu contraseña.</span>
+                </div>
+
+                <!-- Recordarme (Opcional, pero muy pro) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--color-text-muted);">
+                        <input type="checkbox" id="login-remember" style="accent-color: var(--color-primary); width: 16px; height: 16px;">
+                        Recordarme en este equipo
+                    </label>
+                </div>
+
+                <!-- Botón de Envío -->
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 0.9rem;">
+                    Iniciar Sesión <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+                <a href="register.html" class="btn-secondary" style="width: 100%; padding: 0.9rem; margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-user-plus"></i> Crear una Cuenta Nueva
+                </a>
+            </form>
+
+            <div class="auth-footer">
+                ¿No tienes una cuenta? <a href="register.html" style="font-weight: 700;">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor para notificaciones Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Cargar Script de Lógica principal -->
+    <script src="script.js"></script>
+    <script>
+        // Configurar tema inicial al cargar la página
+        const savedTheme = localStorage.getItem('hogar_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Redirección inteligente si ya está logueado
+        async function checkActiveSession() {
+            let hasSession = false;
+            if (window.isSupabaseConfigured) {
+                try {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session && session.user) {
+                        hasSession = true;
+                    }
+                } catch (e) {}
+            } else {
+                const session = JSON.parse(localStorage.getItem('hogar_sesion'));
+                if (session && session.currentUser) {
+                    hasSession = true;
+                }
+            }
+            if (hasSession) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+        checkActiveSession();
+    </script>
+</body>
+</html>
